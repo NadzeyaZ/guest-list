@@ -5,11 +5,8 @@ const GuestContext = createContext();
 
 export default function GuestProvider({ children }) {
   const [guestList, setGuestList] = useState([]);
+  const [guest, setGuest] = useState(null);
   const [selectedGuestID, setSelectedGuestID] = useState(null);
-
-  function handleClick(id) {
-    setSelectedGuestID(id);
-  }
 
   useEffect(() => {
     async function loadGuests() {
@@ -19,7 +16,16 @@ export default function GuestProvider({ children }) {
     loadGuests();
   }, []);
 
-  const guestValues = { guestList, selectedGuestID, handleClick };
+  useEffect(() => {
+    if (!selectedGuestID) return;
+    async function loadGuestDetails() {
+      const guestDetails = await getGuest(selectedGuestID);
+      setGuest(guestDetails);
+    }
+    loadGuestDetails();
+  }, [selectedGuestID]);
+
+  const guestValues = { guestList, selectedGuestID, setSelectedGuestID, guest };
   return (
     <GuestContext.Provider value={guestValues}>
       {children}
